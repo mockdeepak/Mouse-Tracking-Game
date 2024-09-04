@@ -16,7 +16,7 @@ body {
     justify-content: center;
     align-items: center;
     background-color: #85f7ff;
-    overflow: hidden; /* Prevent scrolling */
+    overflow: hidden;
 }
 
 
@@ -46,7 +46,7 @@ body {
     width: 100px;
     height: 100px;
     border-radius: 100px;
-    transition: all 1.4s ease; /* Smooth transition for movement */
+    transition: all 1.4s ease;
 }
 
 .container {
@@ -66,7 +66,7 @@ body {
     background-color: #000000;
     border-radius: 50%;
     transform: translate(-50%, -50%);
-    transition: transform 0.1s ease; /* Smooth cursor movement */
+    transition: transform 0.1s ease; 
     animation: blink 4s infinite; 
 }
 
@@ -76,7 +76,7 @@ body {
     color: white;
     padding: 15px;
     border-radius: 50px;
-    pointer-events: none; /* Make sure this span doesn't interfere with other elements */
+    pointer-events: none;
 }
 
 @keyframes blink {
@@ -91,8 +91,8 @@ body {
 .obstacle {
     position: absolute;
     background-color: red;
-    opacity: 0; /* Initially hidden */
-    transition: width 0.5s ease, height 0.5s ease, opacity 1s ease; /* Smooth transition for size and opacity */
+    opacity: 0; 
+    transition: width 0.5s ease, height 0.5s ease, opacity 1s ease; 
 }
 
 .move{
@@ -177,9 +177,7 @@ body {
     0% {
         transform: translate(-50%, -50%) scale(6) translateX(0) translateY(0);
     }
-    /* 25% {
-        transform: translate(-50%, -50%) scale(8) translateX(10px) translateY(10px);
-    } */
+   
     50% {
         transform: translate(-50%, -50%) scale(6) translateX(-8px) translateY(-6px);
     }
@@ -202,7 +200,7 @@ body {
 
 
 .high-score {
-    left: 190px; /* Position this to the right of the score */
+    left: 190px; 
     z-index: 10000;
     cursor: pointer;
 }
@@ -223,6 +221,67 @@ body {
 .start-button:hover {
     background: #218838;
     z-index: 1000;
+}
+
+@media (max-width:414px) {
+    .container-wrapper {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 100px;
+    transition: all 1.4s ease; 
+}
+
+.container {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border: 1px solid #ccc;
+    overflow: hidden;
+    border-radius: 50%;
+    background-color: white;
+}
+
+.cursor {
+    position: absolute;
+    width: 10px;
+    height: 15px;
+    background-color: #000000;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease;
+    animation: blink 4s infinite; 
+}
+
+.mouse-position {
+    position: absolute;
+    background-color: rgb(255, 213, 3);
+    color: white;
+    padding: 10px;
+    border-radius: 50px;
+    pointer-events: none; 
+}
+
+.extra{
+    position: absolute;
+    width: 10px;
+    height: 15px;
+    background-color: #000000;
+    border-radius: 50%;
+    left: 30%;
+    bottom: 300px;
+    transform: scale(5);
+    animation: blink2 4s infinite; 
+}
+
+.fixed{
+  position: fixed !important;
+  bottom: 80px;
+ transform: scale(15);
+ left: 60px;
+}
+
+
 }
 
     </style>
@@ -263,7 +322,7 @@ body {
     </div>
 
     <script> 
-        // Select elements
+       
 const containerWrapper = document.querySelector('.container-wrapper');
 const cursor = document.querySelector('.cursor');
 const mousePosition = document.getElementById('mousePosition');
@@ -279,27 +338,22 @@ let obstacleSpeed = 2;
 let score = 0;
 let highScore = localStorage.getItem('highScore') || 0;
    
-let currentLevel = 1; // Initialize level
+let currentLevel = 1; 
 let obstacleAnimationInterval;
 let collisionCheckInterval;
 let collisionDelayTimer;
 
 
 function resetHighScore() {
-    // Remove the high score from localStorage
+
     localStorage.removeItem('highScore');
     
-    // Optionally, update the highScore variable and display
+ 
     highScore = 0;
     highScoreDisplay.textContent = `High Score: ${highScore}`;
-    
-    // Optionally, alert the user
+
     alert('High score has been removed.');
 }
-
-
-
-// Example: Reset the high score when a button is clicked
 
 
 
@@ -311,13 +365,13 @@ function startGame() {
     createObstacles();
     isGameOver = false;
     score = 0;
-    currentLevel = 1; // Reset level
+    currentLevel = 1; 
     scoreDisplay.textContent = `Score: ${score} (Level ${currentLevel})`;
     highScoreDisplay.textContent = `High Score: ${highScore}`;
     gameOverScreen.style.display = 'none';
     startButton.style.display = 'none';
 
-    // Start obstacles and collision detection
+    
     setTimeout(() => {
         obstacles.forEach(obstacle => {
             obstacle.style.opacity = 1;
@@ -374,7 +428,7 @@ function moveObstacles() {
             if (newLeft > window.innerWidth) {
                 obstacle.style.left = `-${obstacleRect.width}px`;
                 incrementScore();
-                adjustDifficulty(); // Adjust game difficulty based on score and level
+                adjustDifficulty(); 
             } else {
                 obstacle.style.left = `${newLeft}px`;
             }
@@ -411,7 +465,7 @@ function incrementScore() {
         score += 10;
         scoreDisplay.textContent = `Score: ${score} (Level ${currentLevel})`;
         
-        // Check if it's time to advance to the next level
+       
         if (score >= currentLevel * 100) {
             advanceLevel();
         }
@@ -420,16 +474,16 @@ function incrementScore() {
 
 function advanceLevel() {
     currentLevel++;
-    obstacleSpeed += 1; // Increase speed for each new level
+    obstacleSpeed += 1; 
     
-    // Optionally, add more obstacles or change their sizes
-    addObstacles(5); // Add more obstacles per level
-    adjustDifficulty(); // Apply difficulty adjustments based on the new level
+    
+    addObstacles(5);
+    adjustDifficulty(); 
 
-    // Optionally update UI with current level
+   
     scoreDisplay.textContent = `Score: ${score} (Level ${currentLevel})`;
 
-    // Add .move class to obstacles when level 5 is reached
+  
     if (currentLevel === 5) {
         obstacles.forEach(obstacle => {
             obstacle.classList.add('move');
@@ -439,11 +493,11 @@ function advanceLevel() {
 
 function adjustDifficulty() {
     if (score >= 100 && score < 300) {
-        // Adjust based on the level
-        obstacleSpeed = 2 + currentLevel; // Increase speed progressively
-        addObstacles(5 * currentLevel); // Add more obstacles per level
+  
+        obstacleSpeed = 2 + currentLevel; 
+        addObstacles(5 * currentLevel); 
     } else if (score >= 500) {
-        // Change obstacle sizes dynamically with transition
+   
         obstacles.forEach(obstacle => {
             const newWidth = Math.random() * (60 - 20) + 50;
             const newHeight = Math.random() * (40 - 10) + 30;
@@ -466,10 +520,10 @@ function endGame() {
 
 
 if (score > highScore) {
-    highScore = Math.floor(score);  // Update highScore with the new score
-    highScoreDisplay.textContent = `High Score: ${highScore}`;  // Update the display
-    localStorage.setItem('highScore', highScore);  // Save the new high score
-    return localStorage.setItem('highScore', highScore);  // Save the new high score
+    highScore = Math.floor(score); 
+    highScoreDisplay.textContent = `High Score: ${highScore}`; 
+    localStorage.setItem('highScore', highScore);  
+    return localStorage.setItem('highScore', highScore); 
 }
 
     startButton.style.display = 'block';
@@ -479,11 +533,11 @@ if (score > highScore) {
  document.getElementById('highScore').innerHTML= `High Score : ${highScore}`;
 
 function restartGame() {
-    obstacles.forEach(obstacle => obstacle.remove()); // Clear existing obstacles
-    clearInterval(obstacleAnimationInterval); // Stop obstacle movement
-    clearInterval(collisionCheckInterval); // Stop collision checking
-    clearTimeout(collisionDelayTimer); // Stop collision delay timer
-    startGame(); // Restart the game
+    obstacles.forEach(obstacle => obstacle.remove()); 
+    clearInterval(obstacleAnimationInterval);
+    clearInterval(collisionCheckInterval);
+    clearTimeout(collisionDelayTimer);
+    startGame(); 
 }
 
 document.addEventListener('mousemove', (event) => {
