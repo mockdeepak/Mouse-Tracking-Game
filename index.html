@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eye Game</title>
+   
+    <style>
+        
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #85f7ff;
+    overflow: hidden; /* Prevent scrolling */
+}
+
+.power-up {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: gold;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+
+.bigcontainer {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.container-wrapper {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border-radius: 100px;
+    transition: all 1.4s ease; /* Smooth transition for movement */
+}
+
+.container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border: 1px solid #ccc;
+    overflow: hidden;
+    border-radius: 50%;
+    background-color: white;
+}
+
+.cursor {
+    position: absolute;
+    width: 20px;
+    height: 30px;
+    background-color: #000000;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease; /* Smooth cursor movement */
+    animation: blink 4s infinite; 
+}
+
+.mouse-position {
+    position: absolute;
+    background-color: rgb(255, 213, 3);
+    color: white;
+    padding: 15px;
+    border-radius: 50px;
+    pointer-events: none; /* Make sure this span doesn't interfere with other elements */
+}
+
+@keyframes blink {
+    0%, 97%, 100% {
+        transform: translate(-50%, -50%) scaleY(1);
+    }
+    98% {
+        transform: translate(-50%, -50%) scaleY(0.1); 
+    }
+}
+
+.obstacle {
+    position: absolute;
+    background-color: red;
+    opacity: 0; /* Initially hidden */
+    transition: width 0.5s ease, height 0.5s ease, opacity 1s ease; /* Smooth transition for size and opacity */
+}
+
+.move{
+    background-color: #007bff;
+    width: 10px;
+    height: 20px;
+}
+
+
+
+
+.game-over {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    text-align: center;
+     z-index: 1000;
+}
+
+.game-over button {
+    padding: 10px 20px;
+    border: none;
+    background: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1000;
+    font-size: 16px;
+}
+
+.game-over button:hover {
+    background: #0056b3;
+    z-index: 1000;
+}
+
+.score, .high-score {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 18px;
+    z-index: 1000;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+}
+
+#backButton{
+    margin-left: 20px;
+}
+
+.fixed{
+  position: fixed !important;
+  bottom: 0;
+ transform: scale(10);
+ left: 0;
+}
+
+.fix{
+  display: none;
+ 
+}
+
+.extra{
+    position: absolute;
+    width: 20px;
+    height: 30px;
+    background-color: #000000;
+    border-radius: 50%;
+    left: 12%;
+    transform: scale(5);
+    animation: blink2 4s infinite; 
+}
+
+@keyframes blink2 {
+    0% {
+        transform: translate(-50%, -50%) scale(6) translateX(0) translateY(0);
+    }
+    /* 25% {
+        transform: translate(-50%, -50%) scale(8) translateX(10px) translateY(10px);
+    } */
+    50% {
+        transform: translate(-50%, -50%) scale(6) translateX(-8px) translateY(-6px);
+    }
+    75% {
+        transform: translate(-50%, -50%) scale(6) translateX(-8px) translateY(-6px);
+    }
+    97% {
+        transform: translate(-50%, -50%) scale(6);
+        
+    }
+    98% {
+        transform: translate(-50%, -50%) scaleY(0);
+        
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(6);
+        
+    }
+}
+
+
+.high-score {
+    left: 190px; /* Position this to the right of the score */
+    z-index: 10000;
+    cursor: pointer;
+}
+
+.start-button {
+    position: absolute;
+    bottom: 20px;
+    padding: 10px 20px;
+    border: none;
+    background: #28a745;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    z-index: 1000;
+}
+
+.start-button:hover {
+    background: #218838;
+    z-index: 1000;
+}
+
+    </style>
+</head>
+
+<body>
+    <div class="bigcontainer">
+        <div class="container-wrapper ">
+            <div id="start" class="container">
+                <span id="fix" class="cursor fix"></span>
+               
+            </div>
+           
+        </div>
+
+        <span id="extra" class="extra"></span>
+
+        <!-- Mouse position display -->
+        <span class="mouse-position" id="mousePosition"></span>
+
+        <!-- Score display -->
+        <div class="score" id="score">Score: 0</div>
+        <!-- High Score display -->
+        <div  onclick="resetHighScore() " class="high-score" id="highScore">High Score: 0 </div>
+       
+
+        <!-- Game Over message -->
+        <div class="game-over" id="gameOver">
+            <h2>Game Over!</h2>
+            <p>Your final score is: <span id="finalScore"></span></p>
+            <button onclick="restartGame()">Restart</button>
+      
+            <button id="backButton" onclick="goToHomePage()">Back to Home</button>
+        </div>
+
+        <!-- Start Game button -->
+        <button class="start-button" onclick="startGame()">Start Game</button>
+    </div>
+
+    <script> 
+        // Select elements
+const containerWrapper = document.querySelector('.container-wrapper');
+const cursor = document.querySelector('.cursor');
+const mousePosition = document.getElementById('mousePosition');
+const gameOverScreen = document.getElementById('gameOver');
+const scoreDisplay = document.getElementById('score');
+const finalScoreDisplay = document.getElementById('finalScore');
+const highScoreDisplay = document.getElementById('highScore');
+const startButton = document.querySelector('.start-button');
+
+let isGameOver = false;
+let obstacles = [];
+let obstacleSpeed = 2;
+let score = 0;
+let highScore = localStorage.getItem('highScore') || 0;
+   
+let currentLevel = 1; // Initialize level
+let obstacleAnimationInterval;
+let collisionCheckInterval;
+let collisionDelayTimer;
+
+
+function resetHighScore() {
+    // Remove the high score from localStorage
+    localStorage.removeItem('highScore');
+    
+    // Optionally, update the highScore variable and display
+    highScore = 0;
+    highScoreDisplay.textContent = `High Score: ${highScore}`;
+    
+    // Optionally, alert the user
+    alert('High score has been removed.');
+}
+
+
+
+// Example: Reset the high score when a button is clicked
+
+
+
+function startGame() {
+    document.getElementById('start').classList.remove('fixed');
+    document.getElementById('fix').classList.remove('fix');
+    document.getElementById('extra').style.display='none';
+
+    createObstacles();
+    isGameOver = false;
+    score = 0;
+    currentLevel = 1; // Reset level
+    scoreDisplay.textContent = `Score: ${score} (Level ${currentLevel})`;
+    highScoreDisplay.textContent = `High Score: ${highScore}`;
+    gameOverScreen.style.display = 'none';
+    startButton.style.display = 'none';
+
+    // Start obstacles and collision detection
+    setTimeout(() => {
+        obstacles.forEach(obstacle => {
+            obstacle.style.opacity = 1;
+        });
+        moveObstacles();
+    }, 2000);
+
+    if (collisionCheckInterval) clearInterval(collisionCheckInterval);
+    collisionDelayTimer = setTimeout(() => {
+        collisionCheckInterval = setInterval(checkWrapperCollision, 20);
+    }, 5000);
+}
+
+function createObstacles() {
+    const numObstacles = 10;
+    const obstacleWidthRange = [20, 60];
+    const obstacleHeightRange = [10, 40];
+    const screenWidth = window.innerWidth;
+
+    obstacles.forEach(obstacle => obstacle.remove());
+    obstacles = [];
+
+    for (let i = 0; i < numObstacles; i++) {
+        const obstacle = document.createElement('div');
+        obstacle.className = 'obstacle';
+        
+        const width = Math.random() * (obstacleWidthRange[1] - obstacleWidthRange[0]) + obstacleWidthRange[0];
+        const height = Math.random() * (obstacleHeightRange[1] - obstacleHeightRange[0]) + obstacleHeightRange[0];
+
+        obstacle.style.width = `${width}px`;
+        obstacle.style.height = `${height}px`;
+
+        const position = Math.random() * (screenWidth - width);
+        obstacle.style.left = `${position}px`;
+        obstacle.style.top = `${Math.random() * (window.innerHeight - height)}px`;
+
+        document.querySelector('.bigcontainer').appendChild(obstacle);
+        obstacles.push(obstacle);
+    }
+}
+
+function moveObstacles() {
+    if (obstacleAnimationInterval) clearInterval(obstacleAnimationInterval);
+    obstacleAnimationInterval = setInterval(() => {
+        if (isGameOver) {
+            clearInterval(obstacleAnimationInterval);
+            return;
+        }
+
+        obstacles.forEach(obstacle => {
+            const obstacleRect = obstacle.getBoundingClientRect();
+            const newLeft = obstacleRect.left + obstacleSpeed;
+
+            if (newLeft > window.innerWidth) {
+                obstacle.style.left = `-${obstacleRect.width}px`;
+                incrementScore();
+                adjustDifficulty(); // Adjust game difficulty based on score and level
+            } else {
+                obstacle.style.left = `${newLeft}px`;
+            }
+        });
+    }, 20);
+}
+
+function checkWrapperCollision() {
+    if (isGameOver) {
+        clearInterval(collisionCheckInterval);
+        return;
+    }
+
+    const containerWrapperRect = containerWrapper.getBoundingClientRect();
+
+    obstacles.forEach(obstacle => {
+        const obstacleRect = obstacle.getBoundingClientRect();
+
+        if (isCollision(containerWrapperRect, obstacleRect)) {
+            endGame();
+        }
+    });
+}
+
+function isCollision(rect1, rect2) {
+    return !(rect2.left > rect1.right ||
+             rect2.right < rect1.left ||
+             rect2.top > rect1.bottom ||
+             rect2.bottom < rect1.top);
+}
+
+function incrementScore() {
+    if (!isGameOver) {
+        score += 10;
+        scoreDisplay.textContent = `Score: ${score} (Level ${currentLevel})`;
+        
+        // Check if it's time to advance to the next level
+        if (score >= currentLevel * 100) {
+            advanceLevel();
+        }
+    }
+}
+
+function advanceLevel() {
+    currentLevel++;
+    obstacleSpeed += 1; // Increase speed for each new level
+    
+    // Optionally, add more obstacles or change their sizes
+    addObstacles(5); // Add more obstacles per level
+    adjustDifficulty(); // Apply difficulty adjustments based on the new level
+
+    // Optionally update UI with current level
+    scoreDisplay.textContent = `Score: ${score} (Level ${currentLevel})`;
+
+    // Add .move class to obstacles when level 5 is reached
+    if (currentLevel === 5) {
+        obstacles.forEach(obstacle => {
+            obstacle.classList.add('move');
+        });
+    }
+}
+
+function adjustDifficulty() {
+    if (score >= 100 && score < 300) {
+        // Adjust based on the level
+        obstacleSpeed = 2 + currentLevel; // Increase speed progressively
+        addObstacles(5 * currentLevel); // Add more obstacles per level
+    } else if (score >= 500) {
+        // Change obstacle sizes dynamically with transition
+        obstacles.forEach(obstacle => {
+            const newWidth = Math.random() * (60 - 20) + 50;
+            const newHeight = Math.random() * (40 - 10) + 30;
+            obstacle.style.width = `${newWidth}px`;
+            obstacle.style.height = `${newHeight}px`;
+        });
+    }
+}
+
+
+
+
+
+function endGame() {
+    isGameOver = true;
+    gameOverScreen.style.display = 'block';
+    finalScoreDisplay.textContent = Math.floor(score);
+
+ 
+
+
+if (score > highScore) {
+    highScore = Math.floor(score);  // Update highScore with the new score
+    highScoreDisplay.textContent = `High Score: ${highScore}`;  // Update the display
+    localStorage.setItem('highScore', highScore);  // Save the new high score
+    return localStorage.setItem('highScore', highScore);  // Save the new high score
+}
+
+    startButton.style.display = 'block';
+    if (collisionCheckInterval) clearInterval(collisionCheckInterval);
+}
+
+ document.getElementById('highScore').innerHTML= `High Score : ${highScore}`;
+
+function restartGame() {
+    obstacles.forEach(obstacle => obstacle.remove()); // Clear existing obstacles
+    clearInterval(obstacleAnimationInterval); // Stop obstacle movement
+    clearInterval(collisionCheckInterval); // Stop collision checking
+    clearTimeout(collisionDelayTimer); // Stop collision delay timer
+    startGame(); // Restart the game
+}
+
+document.addEventListener('mousemove', (event) => {
+    if (isGameOver) return;
+
+    const cursorX = event.clientX;
+    const cursorY = event.clientY;
+    const containerWrapperRect = containerWrapper.getBoundingClientRect();
+
+    cursor.style.left = `${Math.max(Math.min(cursorX - containerWrapperRect.left, containerWrapperRect.width - cursor.offsetWidth), 0)}px`;
+    cursor.style.top = `${Math.max(Math.min(cursorY - containerWrapperRect.top, containerWrapperRect.height - cursor.offsetHeight), 0)}px`;
+
+    containerWrapper.style.left = `${Math.max(Math.min(event.clientX - containerWrapperRect.width / 2, window.innerWidth - containerWrapperRect.width), 0)}px`;
+    containerWrapper.style.top = `${Math.max(Math.min(event.clientY - containerWrapperRect.height / 2, window.innerHeight - containerWrapperRect.height), 0)}px`;
+
+    mousePosition.style.left = `${event.clientX - 10}px`;
+    mousePosition.style.top = `${event.clientY - 10}px`;
+});
+
+
+function goToHomePage() {
+   
+    
+
+        window.location.href = 'index.html';
+   
+}
+
+window.onload = function() {
+    document.getElementById('start').classList.add('fixed');
+    document.getElementById('fix').classList.add('fix');
+};
+
+    </script>
+</body>
+</html>
